@@ -1,6 +1,8 @@
 MIT License
 
-Copyright (c) 2021 Entle Web Solutions
+## Acknowledgements
+
+This project is a fork of the excellent [action-pagerduty-alert](https://github.com/Entle/action-pagerduty-alert) by [https://github.com/JohJonker, https://github.com/szunami, https://github.com/illiriks, https://github.com/jardon, https://github.com/codetheweb, https://github.com/miparnisari ]. We are grateful for their initial work and the permissive MIT license that allowed us to build upon it.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
