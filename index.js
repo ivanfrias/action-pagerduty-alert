@@ -1,4 +1,4 @@
-import core from '@actions/core';
+import core, { debug } from '@actions/core';
 import sendAlert from './lib/send-alert.js';
 import prepareAlert from './lib/prepare-alert.js';
 import queryGitHubWorkflowsStatus from './lib/check-github-history.js';
@@ -19,9 +19,29 @@ try {
 
   var failedExecutionsCount;
 
+  console.debug("Executing 'action-pagerduty-alert' action with following arguments:");
+  console.debug("pagerduty-dedup-key: ", pagerDutyDedupKey);
+  console.debug("runbook-url: ", runbookUrl);
+  console.debug("resolve: ", resolve);
+  console.debug("severity: ", severity);
+  console.debug("owner: ", owner);
+  console.debug("repo: ", repo);
+  console.debug("workflow-id: ", workflowId);
+  console.debug("branch: ", branch);
+  console.debug("failed-executions-threshold: ", failedExecutionsThreshold);
+  console.log("\n");
+
   if (failedExecutionsThreshold) {
     const lastExecutions = await queryGitHubWorkflowsStatus(owner, repo, workflowId, failedExecutionsThreshold, ghToken, branch);
-    failedExecutionsCount = lastExecutions.filter(exec =>  exec.status == 'completed' & exec.conclusion == 'failure').length;
+
+    if (lastExecutions) {
+      failedExecutionsCount = lastExecutions.filter(exec =>  exec.status == 'completed' & exec.conclusion == 'failure').length;
+    } else {
+      throw new Error("Couldn't query GitHub history!");
+    }
+
+  } else {
+    console.info("Failed Executions Threshold not defined, skipping GitHub history verifications...");
   }
 
   if ((failedExecutionsCount != null && failedExecutionsThreshold != null && failedExecutionsCount == failedExecutionsThreshold) || !failedExecutionsThreshold) {
