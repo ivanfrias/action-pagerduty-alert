@@ -33,6 +33,44 @@ Sends a PagerDuty alert, e.g. on action failure. Optionally, resolves on success
 
 More documentation on the above parameters is available [here](https://developer.pagerduty.com/docs/events-api-v2/trigger-events/).
 
+`severity`
+
+**Optional:** Defines the severity level of the pager duty alert. Possible values are `critical`, `warning`, `error` and `info`
+
+**Default:** critical
+
+`failed-executions-threshold`
+
+**Optional:** If defined, the action queries github REST API using the provided owner&repository, branch and workflowId to check how many times this failure has happened in the past. If the amount of consecutive failures is equal to this value, then a pagerduty alert is triggered. If value is not defined, it will trigger a pagerduty alert neverthless.
+
+**Default:** None
+
+`owner`
+
+**Optional:** Defines the owner of the repository containing the workflow id to check for failed consecutive runs when `failed-executions-threshold` is defined.
+
+**Default:** None
+
+`repo`
+
+**Optional:** The repository name that contains the workflow that needs to be checked for failed consecutive runs when `failed-executions-threshold` is defined.
+
+**Default:** None
+
+`workflow-id`
+
+**Optional:** The workflow identifier as defined [here](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#list-workflow-runs-for-a-workflow).
+
+**Default:** None
+
+`branch`
+
+**Optional:** The name of the branch containing the workflow definition to check for.
+
+**Default:** None
+
+
+
 ## Example usage
 
 Adding this to your `steps` will send a PagerDuty alert if the job fails. It is recommended to add this step at the end of your job to cover all possible failures.
@@ -45,6 +83,11 @@ Adding this to your `steps` will send a PagerDuty alert if the job fails. It is 
     pagerduty-integration-key: '${{ secrets.PAGERDUTY_INTEGRATION_KEY }}'
     pagerduty-dedup-key: github_workflow_failed
     runbook-url: 'https://example.com/runbook'
+    owner: 'some_organization'
+    repo: 'my_repository'
+    branch: 'main'
+    workflow-id: 'my-workflow.yaml'
+    failed-executions-threshold: 3
 ```
 
 Optionally, add the below step after the one above to resolve the alert if a subsequent job succeeds.

@@ -31,20 +31,22 @@ try {
   console.debug("failed-executions-threshold: ", failedExecutionsThreshold);
   console.log("\n");
 
-  if (failedExecutionsThreshold) {
-    const lastExecutions = await queryGitHubWorkflowsStatus(owner, repo, workflowId, failedExecutionsThreshold, ghToken, branch);
-
-    if (lastExecutions) {
-      failedExecutionsCount = lastExecutions.filter(exec =>  exec.status == 'completed' & exec.conclusion == 'failure').length;
+  if (!resolve) {
+    if (failedExecutionsThreshold) {
+      const lastExecutions = await queryGitHubWorkflowsStatus(owner, repo, workflowId, failedExecutionsThreshold, ghToken, branch);
+  
+      if (lastExecutions) {
+        failedExecutionsCount = lastExecutions.filter(exec =>  exec.status == 'completed' & exec.conclusion == 'failure').length;
+      } else {
+        throw new Error("Couldn't query GitHub history!");
+      }
+  
     } else {
-      throw new Error("Couldn't query GitHub history!");
+      console.info("Failed Executions Threshold not defined, skipping GitHub history verifications...");
     }
-
-  } else {
-    console.info("Failed Executions Threshold not defined, skipping GitHub history verifications...");
   }
 
-  if ((failedExecutionsCount != null && failedExecutionsThreshold != null && failedExecutionsCount == failedExecutionsThreshold) || !failedExecutionsThreshold) {
+  if (resolve || (failedExecutionsCount != null && failedExecutionsThreshold != null && failedExecutionsCount == failedExecutionsThreshold) || !failedExecutionsThreshold) {
       const alert = prepareAlert(pagerDutyintegrationKey, pagerDutyDedupKey, runbookUrl, resolve, severity);
       await sendAlert(alert);
   }
